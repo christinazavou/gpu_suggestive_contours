@@ -2,12 +2,12 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <TRIMESH_DIR>..\..\..\</TRIMESH_DIR>
+	  <TRIMESH_DIR>D:\dev\libs\trimesh2\</TRIMESH_DIR>
   </PropertyGroup>
   <PropertyGroup>
     <IncludePath>$(TRIMESH_DIR)\include\;$(IncludePath)</IncludePath>
     <_PropertySheetDisplayName>trimesh_includes</_PropertySheetDisplayName>
-    <LibraryPath>$(TRIMESH_DIR)\lib.Win$(PlatformArchitecture).vs$(PlatformToolsetVersion);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(TRIMESH_DIR)\lib.win$(PlatformArchitecture)\release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
