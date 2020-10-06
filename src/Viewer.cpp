@@ -327,7 +327,7 @@ void idle(){
 	if (camera.autospin(tmp_xf)) // if the camera is still spinning
 		glutPostRedisplay();
 	else
-		trimesh::usleep(10000); // do nothing
+		usleep(10000); // do nothing
 	global_transf = tmp_xf;
 
 }

@@ -23,7 +23,7 @@ FPSCounter::FPSCounter(){
 }
 
 void FPSCounter::updateCounter(){
-	if(trimesh::now() - lasttime >= 1){
+	if(trimesh::now().tv_sec -  lasttime.tv_sec >= 1){
 		FPS = frames;
 		frames = 0;
 	}

@@ -29,7 +29,7 @@ Simple viewer
 using namespace std;
 using namespace trimesh;
 
-#include "shaders.inc"
+#include "src/trimesh2/utilsrc/shaders.inc"
 
 
 // Globals

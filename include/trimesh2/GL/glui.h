@@ -21,9 +21,8 @@
 #define _GLUI_H_
 
 #include <GL/glut.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #define GLUI_VERSION 2.01f    /********** Current version **********/
 
@@ -34,26 +33,23 @@
 class Arcball;
 
 /********** Do some basic defines *******/
-#ifndef false
-#define true 1
-#define false 0
-#endif
-
-#ifndef Byte
-#define Byte unsigned char
-#endif
+//#ifndef false
+//#define true 1
+//#define false 0
+//#endif
 
 #ifndef _RGBC_
 class RGBc {
 public:
-  Byte r, g, b;
+  unsigned char r, g, b;
     
-  void set(Byte red, Byte green, Byte blue) {
+  void set(unsigned char red, unsigned char green, unsigned char blue) {
      r = red; g = green; b = blue;
   }
     
   RGBc( void ) {};
-  RGBc( Byte red, Byte green, Byte blue ) { set( red, green, blue ); }
+  RGBc( unsigned char red, unsigned char green, unsigned char blue )
+    { set( red, green, blue ); }
 };
 #define _RGBC_
 #endif
@@ -208,7 +204,7 @@ public:
   }
 
   GLUI_String( const char *text ) {
-    strcpy( string, text );
+    std::strcpy( string, text );
   }
 };
 
@@ -297,10 +293,10 @@ public:
   void      unlink( void );
 
   void dump( FILE *out, const char *name ) {
-    fprintf( out, "GLUI_node: %s\n", name );
-    fprintf( out, "   parent: %p     child_head: %p    child_tail: %p\n",
+    std::fprintf( out, "GLUI_node: %s\n", name );
+    std::fprintf( out, "   parent: %p     child_head: %p    child_tail: %p\n",
          parent_node, child_head, child_tail );
-    fprintf( out, "   next: %p       prev: %p\n", next_sibling, prev_sibling );
+    std::fprintf( out, "   next: %p       prev: %p\n", next_sibling, prev_sibling );
   }
 
   GLUI_Node( void ) { 
@@ -759,7 +755,7 @@ public:
   void         restore_window( int orig );
   void         translate_and_draw_front( void );
   void         translate_to_origin( void ) 
-    {glTranslatef((float)x_abs+.5,(float)y_abs+.5,0.0);};
+    {glTranslatef((float)x_abs+.5f,(float)y_abs+.5f,0.0f);};
   virtual void draw( int x, int y )=0;
   void         set_font( void *new_font );
   void        *get_font( void );
@@ -803,7 +799,7 @@ public:
     int_val        = 0;
     last_live_int  = 0;
     float_array_size = 0;
-    sprintf( (char*)name, "Control: %p", this );
+    std::sprintf( (char*)name, "Control: %p", this );
     float_val      = 0.0;
     last_live_float = 0.0;
     ptr_val        = NULL;
@@ -817,8 +813,8 @@ public:
     can_activate   = true;         /* By default, you can activate a control */
     spacebar_mouse_click = true;    /* Does spacebar simulate a mouse click? */
     live_type      = GLUI_LIVE_NONE;
-    strcpy( (char*)text, "" );
-    strcpy( (char*)last_live_text, "" );
+    std::strcpy( (char*)text, "" );
+    std::strcpy( (char*)last_live_text, "" );
     live_inited    = false;
     collapsible    = false;
     is_open        = true;
@@ -859,7 +855,7 @@ public:
   void update_size( void );
 
   GLUI_Button( void ) {
-    sprintf( name, "Button: %p", this );
+    std::sprintf( name, "Button: %p", this );
     type         = GLUI_CONTROL_BUTTON;
     h            = GLUI_BUTTON_SIZE;
     w            = 100;
@@ -901,7 +897,7 @@ public:
   void set_int_val( int new_val );
 
   GLUI_Checkbox( void ) {
-    sprintf( name, "Checkbox: %p", this );
+    std::sprintf( name, "Checkbox: %p", this );
     type           = GLUI_CONTROL_CHECKBOX;
     w              = 100;
     h              = GLUI_CHECKBOX_SIZE;
@@ -962,7 +958,7 @@ public:
     alignment    = GLUI_ALIGN_CENTER;
     is_container = true; 
     can_activate = false;
-    strcpy( name, "" );
+    std::strcpy( name, "" );
   };
 
   virtual ~GLUI_Panel() {};
@@ -1006,7 +1002,7 @@ public:
     w                = GLUI_DEFAULT_CONTROL_WIDTH;
     y_off_top        = 21;
     collapsible      = true;
-    strcpy( name, "" );
+    std::strcpy( name, "" );
   };
  
   virtual ~GLUI_Rollout() {};
@@ -1304,7 +1300,7 @@ public:
   GLUI_RadioGroup *group;
 
   GLUI_RadioButton( void ) {
-    sprintf( name, "RadioButton: %p", this );
+    std::sprintf( name, "RadioButton: %p", this );
     type           = GLUI_CONTROL_RADIOBUTTON;
     h              = GLUI_RADIOBUTTON_SIZE;
     group          = NULL;
@@ -1404,7 +1400,7 @@ public:
   void set_speed( float speed ) { user_speed = speed; };
 
   GLUI_Spinner( void ) {
-    sprintf( name, "Spinner: %p", this );
+    std::sprintf( name, "Spinner: %p", this );
     type         = GLUI_CONTROL_SPINNER;
     h            = GLUI_EDITTEXT_HEIGHT;
     w            = GLUI_EDITTEXT_WIDTH;
@@ -1499,7 +1495,7 @@ public:
   
 
   GLUI_Listbox( void ) {
-    sprintf( name, "Listbox: %p", this );
+    std::sprintf( name, "Listbox: %p", this );
     type           = GLUI_CONTROL_LISTBOX;
     w              = GLUI_EDITTEXT_WIDTH;
     h              = GLUI_EDITTEXT_HEIGHT;
@@ -1549,7 +1545,7 @@ public:
   virtual void iaction_init( void ) = 0;
   
   GLUI_Mouse_Interaction( void ) {
-    sprintf( name, "Mouse_Interaction: %p", this );
+    std::sprintf( name, "Mouse_Interaction: %p", this );
     type           = GLUI_CONTROL_MOUSE_INTERACTION;
     w              = GLUI_MOUSE_INTERACTION_WIDTH;
     h              = GLUI_MOUSE_INTERACTION_HEIGHT;
@@ -1664,7 +1660,7 @@ public:
 
   GLUI_Translation( void ) {
     locked              = GLUI_TRANSLATION_LOCK_NONE;
-    sprintf( name, "Translation: %p", this );
+    std::sprintf( name, "Translation: %p", this );
     type                = GLUI_CONTROL_TRANSLATION;
     w                   = GLUI_MOUSE_INTERACTION_WIDTH;
     h                   = GLUI_MOUSE_INTERACTION_HEIGHT;

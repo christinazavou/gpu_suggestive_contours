@@ -13,8 +13,18 @@ include_directories(
         include/trimesh2
         include/trimesh2/GL
 )
-file(GLOB HEADERS "*.h" "include/trimesh2/*.h" "include/trimesh2/GL/*.h" "src/*.h")
-file(GLOB SOURCES "*.cc" "src/*.cpp" "src/*.cc")
+file(GLOB HEADERS
+        "*.h"
+        "include/trimesh2/*.h"
+        "include/trimesh2/GL/*.h"
+        "src/*.h")
+file(GLOB SOURCES
+        "*.cc"
+        "src/*.cpp"
+        "src/*.cc"
+        "src/trimesh2/libsrc/*.cc"
+        "src/trimesh2/libsrc/*.inc"
+        "src/trimesh2/utilsrc/*.inc")
 message("HEADERS: ${HEADERS}")
 message("SOURCES: ${SOURCES}")
 add_executable(${EXECUTABLE}
