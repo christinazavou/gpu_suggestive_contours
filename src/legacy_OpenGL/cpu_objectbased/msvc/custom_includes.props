@@ -9,7 +9,7 @@
   <PropertyGroup>
     <_PropertySheetDisplayName>custom_includes</_PropertySheetDisplayName>
     <IncludePath>$(GLEW_DIR)\include;$(TRIMESH_DIR)\include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(GLEW_DIR)\lib\Release\x64;$(TRIMESH_DIR)\lib.Win$(PlatformArchitecture).vs$(PlatformToolsetVersion);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(GLEW_DIR)\lib\Release\x64;$(TRIMESH_DIR)\lib\win$(PlatformArchitecture)\release;$(LibraryPath)</LibraryPath>
     <OutDir>$(BINARY_OUTPUT_DIR)</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup />
