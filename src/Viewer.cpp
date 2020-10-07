@@ -20,6 +20,7 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <math.h>
 
 
 // SELFMADE
@@ -38,6 +39,9 @@ std::vector<trimesh::xform> transformations; // model transformations
 trimesh::TriMesh::BSphere global_bsph; // global boundingbox
 trimesh::xform global_transf; // global transformations
 trimesh::GLCamera camera; // global camera
+
+#define PI 3.14159265
+trimesh::vec camera_pos;
 
 // our fps counter
 FPSCounter* fps;
@@ -133,6 +137,21 @@ void setup_lighting(){
 	}
 }
 
+trimesh::point set_camera_around_point(double center_x=0,
+                                       double center_y=0,
+                                       double camera_x=2,
+                                       double camera_y=2,
+                                       double degrees=30){
+    double angle = degrees * PI / 180;
+    double x = center_x+cos(angle)*(camera_x-center_x)-sin(angle)*(camera_y-center_y);
+    double y = center_y+sin(angle)*(camera_x-center_x)+cos(angle)*(camera_y-center_y);
+//    if AXIS == 'z'
+//        return trimesh::point(x, y, 0)
+//    else
+    return trimesh::point(x, 0, y);
+}
+
+
 /**
  * Reposition the camera and draw every model in the scene.
  */
@@ -150,7 +169,7 @@ void redraw(){
 	glEnable(GL_CULL_FACE);
 
 	// compute new camera position
-	trimesh::vec camera_pos = inv(global_transf) * trimesh::point(0,0,0);
+	camera_pos = inv(global_transf) * trimesh::point(0,0,0);
 
 	// setup lighting
 	setup_lighting();
@@ -311,6 +330,13 @@ void keyboardfunc(unsigned char key, int x, int y){
 		diffuse = !diffuse;
 		printf ("Toggled diffuse lighting to %i \n", diffuse);
 		break;
+    case 'r': // rotate camera 30 degrees
+        // set_camera_around_point()
+//        camera_pos = inv(global_transf) * trimesh::point(2,2,0);
+//        camera.setupGL(global_transf * global_bsph.center, global_bsph.r);
+//        camera.
+		printf ("Camera position is ");
+		break;
 	case 'w': // dump image to file
 		dump_image();
 		break;
@@ -340,8 +366,8 @@ int main(int argc, char *argv[]){
 	glutCreateWindow("Crytek Object Space Contours Demo");
 	glutDisplayFunc(redraw);
 	glutKeyboardFunc(keyboardfunc);
-	glutMouseFunc(mousebuttonfunc);
-	glutMotionFunc(mousemotionfunc);
+//	glutMouseFunc(mousebuttonfunc);
+//	glutMotionFunc(mousemotionfunc);
 	glutIdleFunc(idle);
 	glewInit();
 
@@ -382,7 +408,8 @@ int main(int argc, char *argv[]){
 	// create fps counter
 	fps = new FPSCounter();
 
-	// reset window viewpoint and start GLUT main loop (will never stop)
+    // reset window viewpoint and start GLUT main loop (will never stop)
+
 	resetview();
 	glutMainLoop();
 }
