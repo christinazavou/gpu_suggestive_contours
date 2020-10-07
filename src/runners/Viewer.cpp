@@ -24,12 +24,12 @@
 
 
 // SELFMADE
-#include "Model.h"
-#include "BaseDrawer.h"
-#include "EdgeContourDrawer.h"
-#include "FaceContourDrawer.h"
-#include "SuggestiveContourDrawer.h"
-#include "FPSCounter.h"
+#include "../Model.h"
+#include "../BaseDrawer.h"
+#include "../EdgeContourDrawer.h"
+#include "../FaceContourDrawer.h"
+#include "../SuggestiveContourDrawer.h"
+#include "../FPSCounter.h"
 
 using std::string;
 
