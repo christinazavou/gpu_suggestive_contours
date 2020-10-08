@@ -137,30 +137,65 @@ void setup_lighting(){
 	}
 }
 
-trimesh::point set_camera_around_point(double center_x=0,
-                                       double center_y=0,
-                                       double camera_x=2,
-                                       double camera_y=2,
-                                       double degrees=30){
-    double angle = degrees * PI / 180;
-    double x = center_x+cos(angle)*(camera_x-center_x)-sin(angle)*(camera_y-center_y);
-    double y = center_y+sin(angle)*(camera_x-center_x)+cos(angle)*(camera_y-center_y);
-//    if AXIS == 'z'
-//        return trimesh::point(x, y, 0)
-//    else
-    return trimesh::point(x, 0, y);
-}
 
+/**
+ * Save the current image to a PPM file.
+ * (from TriMesh2 library)
+ */
+void dump_image(string model_dir, int view_num)
+{
+    // Find first non-used filename
+    const char filenamepattern[] = "%s/%d.ppm";
+    FILE *f;
+    while (1) {
+        char filename[1024];
+        sprintf(filename, filenamepattern, model_dir.c_str(), view_num);
+        f = fopen(filename, "rb");
+        if (!f) {
+            f = fopen(filename, "wb");
+            printf("\n\nSaving image %s... ", filename);
+            fflush(stdout);
+            break;
+        }
+        fclose(f);
+    }
+
+    // Read pixels
+    GLint V[4];
+    glGetIntegerv(GL_VIEWPORT, V);
+    GLint width = V[2], height = V[3];
+    char *buf = new char[width*height*3];
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glReadPixels(V[0], V[1], width, height, GL_RGB, GL_UNSIGNED_BYTE, buf);
+
+    // Flip top-to-bottom
+    for (int i = 0; i < height/2; i++) {
+        char *row1 = buf + 3 * width * i;
+        char *row2 = buf + 3 * width * (height - 1 - i);
+        for (int j = 0; j < 3 * width; j++)
+            std::swap(row1[j], row2[j]);
+    }
+
+    // Write out file
+    fprintf(f, "P6\n#\n%d %d\n255\n", width, height);
+    fwrite(buf, width*height*3, 1, f);
+    fclose(f);
+    delete [] buf;
+
+    printf("Done.\n\n");
+}
 
 /**
  * Reposition the camera and draw every model in the scene.
  */
-void redraw(){
+void redraw(char* out_dir, int angle_y){
 	// setup camera and push global transformations
 	camera.setupGL(global_transf * global_bsph.center, global_bsph.r);
-	glPushMatrix();
+    glPushMatrix();
 	glMultMatrixd(global_transf);
-	cls();
+    glRotatef(30,1,0,0);
+    glRotatef(angle_y,0,1,0);
+    cls();
 
 	// enable depth checking and backface culling
 	glDepthFunc(GL_LESS);
@@ -193,168 +228,7 @@ void redraw(){
 	out << "Crytek Object Space Contours Demo | FPS: " << fps->FPS;
 	string s = out.str();
 	glutSetWindowTitle(s.c_str());
-}
-
-/**
- * Save the current image to a PPM file.
- * (from TriMesh2 library)
- */
-void dump_image()
-{
-	// Find first non-used filename
-	const char filenamepattern[] = "img%d.ppm";
-	int imgnum = 0;
-	FILE *f;
-	while (1) {
-		char filename[1024];
-		sprintf(filename, filenamepattern, imgnum++);
-		f = fopen(filename, "rb");
-		if (!f) {
-			f = fopen(filename, "wb");
-			printf("\n\nSaving image %s... ", filename);
-			fflush(stdout);
-			break;
-		}
-		fclose(f);
-	}
-
-	// Read pixels
-	GLint V[4];
-	glGetIntegerv(GL_VIEWPORT, V);
-	GLint width = V[2], height = V[3];
-	char *buf = new char[width*height*3];
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glReadPixels(V[0], V[1], width, height, GL_RGB, GL_UNSIGNED_BYTE, buf);
-
-	// Flip top-to-bottom
-	for (int i = 0; i < height/2; i++) {
-		char *row1 = buf + 3 * width * i;
-		char *row2 = buf + 3 * width * (height - 1 - i);
-		for (int j = 0; j < 3 * width; j++)
-			std::swap(row1[j], row2[j]);
-	}
-
-	// Write out file
-	fprintf(f, "P6\n#\n%d %d\n255\n", width, height);
-	fwrite(buf, width*height*3, 1, f);
-	fclose(f);
-	delete [] buf;
-
-	printf("Done.\n\n");
-}
-
-static unsigned buttonstate = 0;
-
-/**
- * Handle mouse motions
- * (from TriMesh2 library)
- */
-void mousemotionfunc(int x, int y){
-	static const trimesh::Mouse::button map[] = {
-			trimesh::Mouse::NONE, trimesh::Mouse::ROTATE, trimesh::Mouse::MOVEXY, trimesh::Mouse::MOVEZ,
-			trimesh::Mouse::MOVEZ, trimesh::Mouse::MOVEXY, trimesh::Mouse::MOVEXY, trimesh::Mouse::MOVEXY,
-	};
-
-	// find out what exactly happened
-	trimesh::Mouse::button b = trimesh::Mouse::NONE;
-	if (buttonstate & (1 << 3))
-		b = trimesh::Mouse::WHEELUP;
-	else if (buttonstate & (1 << 4))
-		b = trimesh::Mouse::WHEELDOWN;
-	else if (buttonstate & (1 << 30))
-		b = trimesh::Mouse::LIGHT;
-	else // hmm, it was something else
-		b = map[buttonstate & 7];
-
-	// pass mouse movement to camera
-	camera.mouse(x, y, b,global_transf * global_bsph.center, global_bsph.r,global_transf);
-
-	// if we identified something as mouse movement, force redisplay
-	if (b != trimesh::Mouse::NONE)
-		glutPostRedisplay();
-}
-
-/**
- * Handle mouse button clicks
- * (from TriMesh2 library)
- */
-void mousebuttonfunc(int button, int state, int x, int y){
-	static trimesh::timestamp last_click_time;
-	static unsigned last_click_buttonstate = 0;
-	if (glutGetModifiers() & GLUT_ACTIVE_CTRL)
-		buttonstate |= (1 << 30);
-	else
-		buttonstate &= ~(1 << 30);
-
-	if (state == GLUT_DOWN) {
-		buttonstate |= (1 << button);
-		last_click_time = trimesh::now();
-		last_click_buttonstate = buttonstate;
-	}
-	else {
-		buttonstate &= ~(1 << button);
-	}
-	mousemotionfunc(x, y);
-}
-
-/**
- * Handle keyboard events to toggle some functionalities in the drawers, for demonstration purposes in this sample
- */
-void keyboardfunc(unsigned char key, int x, int y){
-	switch (key) {
-	case 'a': // toggle basedrawer
-		b->toggleVisibility();
-		printf ("Toggled Base Drawer Visiblity to %i \n", b->isVisible());
-		break;
-	case 'z': // toggle contourdrawer
-		b1->toggleVisibility();
-		printf ("Toggled Contour Drawer Visiblity to %i \n", b1->isVisible());
-		break;
-	case 'e': // toggle suggestive contour drawer
-		b2->toggleVisibility();
-		printf ("Toggled Suggestive Contour Drawer Visibility to %i \n", b2->isVisible());
-		break;
-	case 'f': // toggle suggestive contour fading
-		b2->toggleFading();
-		printf ("Toggled Suggestive Contour fading to %i \n", b2->isFaded());
-		break;
-	case 'g': // toggle colored lines
-		b2->setLineColor(trimesh::Color(1.0,0.0,0.0));
-		printf ("Suggestive Contour Lines in false color \n");
-		break;
-	case 'h': // toggle colored lines
-		b2->setLineColor(trimesh::Color(0.0,0.0,0.0));
-		printf ("Suggestive Contour Lines in black color \n");
-		break;
-	case 'd': // toggle diffuse lighting
-		diffuse = !diffuse;
-		printf ("Toggled diffuse lighting to %i \n", diffuse);
-		break;
-    case 'r': // rotate camera 30 degrees
-        // set_camera_around_point()
-//        camera_pos = inv(global_transf) * trimesh::point(2,2,0);
-//        camera.setupGL(global_transf * global_bsph.center, global_bsph.r);
-//        camera.
-		printf ("Camera position is ");
-		break;
-	case 'w': // dump image to file
-		dump_image();
-		break;
-	}
-	glutPostOverlayRedisplay();
-}
-
-/**
- * GLUT idle callback
- * (from TriMesh2 library)
- */
-void idle(){
-	trimesh::xform tmp_xf = global_transf;
-	if (camera.autospin(tmp_xf)) // if the camera is still spinning
-		glutPostRedisplay();
-	else
-		usleep(10000); // do nothing
-	global_transf = tmp_xf;
+    dump_image(out_dir, angle_y/30);
 
 }
 
@@ -364,36 +238,27 @@ int main(int argc, char *argv[]){
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInit(&argc, argv);
 	glutCreateWindow("Crytek Object Space Contours Demo");
-	glutDisplayFunc(redraw);
-	glutKeyboardFunc(keyboardfunc);
-//	glutMouseFunc(mousebuttonfunc);
-//	glutMotionFunc(mousemotionfunc);
-	glutIdleFunc(idle);
 	glewInit();
-
-	// Check for Vertex Buffer Object Support
-	printf ("Checking for Vertex Buffer Object support ...");
-	if (GLEW_ARB_vertex_buffer_object){
-		printf(" OK\n");
-	}
-	else{
-		printf("No VBO support. This application requires at least OpenGL 1.4 with ARB extensions.\n");
-		exit(3);
-	}
+	glutHideWindow();
 
 	// construct the Drawers we'll use in this demo
 	b = new BaseDrawer();
 	b1 = new EdgeContourDrawer(trimesh::vec(0,0,0),3.0);
     b2 = new SuggestiveContourDrawer(trimesh::vec(0,0,0), 2.0, true, 0.001);
 
-    if (argc < 2){
-    	printf("No models supplied. Please supply one or more OBJ/PLY models. \n");
-    	exit(3);
-    }
 
-	// read models from arguments
+//    char* names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/MILITARYcastle_mesh2135Marios.ply"};
+//    char* out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/MILITARYcastle_mesh2135Marios";
+//    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RELIGIOUScathedral_mesh0754Marios.ply"};
+//    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RELIGIOUScathedral_mesh0754Marios";
+//    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RESIDENTIALhouse_mesh2302Marios.ply"};
+//    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RESIDENTIALhouse_mesh2302Marios";
+    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RESIDENTIALvilla_mesh3265Marios.ply"};
+    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RESIDENTIALvilla_mesh3265Marios";
+
+    // read models from arguments
 	for (int i = 1; i < argc; i++){
-		const char *name = argv[i];
+		const char *name = names[i];
 		// creat model
 		Model* m = new Model(name);
 		// add drawers to model
@@ -408,9 +273,10 @@ int main(int argc, char *argv[]){
 	// create fps counter
 	fps = new FPSCounter();
 
-    // reset window viewpoint and start GLUT main loop (will never stop)
+    for (int rot_angle_y = 0; rot_angle_y <= 360; rot_angle_y+=30) {
+        resetview();
+        redraw(out_dir, rot_angle_y);
+    }
 
-	resetview();
-	glutMainLoop();
 }
 
