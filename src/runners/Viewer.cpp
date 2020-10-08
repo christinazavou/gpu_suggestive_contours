@@ -253,8 +253,17 @@ int main(int argc, char *argv[]){
 //    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RELIGIOUScathedral_mesh0754Marios";
 //    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RESIDENTIALhouse_mesh2302Marios.ply"};
 //    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RESIDENTIALhouse_mesh2302Marios";
-    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RESIDENTIALvilla_mesh3265Marios.ply"};
-    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RESIDENTIALvilla_mesh3265Marios";
+//    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RESIDENTIALvilla_mesh3265Marios.ply"};
+//    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RESIDENTIALvilla_mesh3265Marios";
+
+
+    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/28_Stavrou_Economou_Building_01Marios.ply"};
+    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/28_Stavrou_Economou_Building_01Marios";
+//    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/29_Lefkaritis_Building_01Marios.ply"};
+//    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/29_Lefkaritis_Building_01Marios";
+//    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/30_Nicolaou_Building_01Marios.ply"};
+//    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/30_Nicolaou_Building_01Marios";
+
 
     // read models from arguments
 	for (int i = 1; i < argc; i++){
