@@ -30,6 +30,7 @@
 #include "../FaceContourDrawer.h"
 #include "../SuggestiveContourDrawer.h"
 #include "../FPSCounter.h"
+#include "../BoundaryDrawer.h"
 
 using std::string;
 
@@ -50,6 +51,7 @@ FPSCounter* fps;
 BaseDrawer* b;
 EdgeContourDrawer* b1;
 SuggestiveContourDrawer* b2;
+BoundaryDrawer* b3;
 
 // toggle for diffuse lighting
 bool diffuse = false;
@@ -113,7 +115,8 @@ void resetview()
 	// recompute bounding sphere
 	update_boundingsphere();
 	// put ourselves in middle
-	global_transf = trimesh::xform::trans(0, 0, -5.0f * global_bsph.r)* trimesh::xform::trans(-global_bsph.center);
+	global_transf = trimesh::xform::trans(0, 0, -5.0f * global_bsph.r)
+	        * trimesh::xform::trans(-global_bsph.center);
 }
 
 /**
@@ -245,6 +248,7 @@ int main(int argc, char *argv[]){
 	b = new BaseDrawer();
 	b1 = new EdgeContourDrawer(trimesh::vec(0,0,0),3.0);
     b2 = new SuggestiveContourDrawer(trimesh::vec(0,0,0), 2.0, true, 0.001);
+    b3 = new BoundaryDrawer(trimesh::vec(0.05,0.05,0.05),2.5);
 
 
 //    char* names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/MILITARYcastle_mesh2135Marios.ply"};
@@ -258,7 +262,8 @@ int main(int argc, char *argv[]){
 
 
     char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/28_Stavrou_Economou_Building_01Marios.ply"};
-    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/28_Stavrou_Economou_Building_01Marios";
+//    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/28_Stavrou_Economou_Building_01Marios";
+    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/dokimes";
 //    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/29_Lefkaritis_Building_01Marios.ply"};
 //    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/29_Lefkaritis_Building_01Marios";
 //    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/30_Nicolaou_Building_01Marios.ply"};
@@ -274,6 +279,7 @@ int main(int argc, char *argv[]){
 		m->pushDrawer(b);
 		m->pushDrawer(b1);
 		m->pushDrawer(b2);
+		m->pushDrawer(b3);
 		models.push_back(m);
 		// push back blank tranformation matrix
 		transformations.push_back(trimesh::xform());
