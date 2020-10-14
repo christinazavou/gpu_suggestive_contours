@@ -21,6 +21,7 @@
 #include <sstream>
 #include <algorithm>
 #include <math.h>
+#include <sys/stat.h>
 
 
 // SELFMADE
@@ -29,7 +30,6 @@
 #include "../EdgeContourDrawer.h"
 #include "../FaceContourDrawer.h"
 #include "../SuggestiveContourDrawer.h"
-#include "../FPSCounter.h"
 #include "../BoundaryDrawer.h"
 
 using std::string;
@@ -43,9 +43,6 @@ trimesh::GLCamera camera; // global camera
 
 #define PI 3.14159265
 trimesh::vec camera_pos;
-
-// our fps counter
-FPSCounter* fps;
 
 // The drawers we'll use in this demo
 BaseDrawer* b;
@@ -191,7 +188,7 @@ void dump_image(string model_dir, int view_num)
 /**
  * Reposition the camera and draw every model in the scene.
  */
-void redraw(char* out_dir, int angle_y){
+void redraw(const char* out_dir, int angle_y){
 	// setup camera and push global transformations
 	camera.setupGL(global_transf * global_bsph.center, global_bsph.r);
     glPushMatrix();
@@ -225,15 +222,33 @@ void redraw(char* out_dir, int angle_y){
 	// pop global transformations
 	glPopMatrix();
 	glutSwapBuffers();
-	// update FPS counter
-	fps->updateCounter();
 	std::stringstream out;
-	out << "Crytek Object Space Contours Demo | FPS: " << fps->FPS;
 	string s = out.str();
 	glutSetWindowTitle(s.c_str());
     dump_image(out_dir, angle_y/30);
 
 }
+
+int mkpath(std::string s,mode_t mode){
+    size_t pos=0;
+    std::string dir;
+    int mdret;
+
+    if(s[s.size()-1]!='/'){
+        // force trailing / so we can handle everything in loop
+        s+='/';
+    }
+
+    while((pos=s.find_first_of('/',pos))!=std::string::npos){
+        dir=s.substr(0,pos++);
+        if(dir.size()==0) continue; // if leading / first time is 0 length
+        if((mdret=mkdir(dir.c_str(),mode)) && errno!=EEXIST){
+            return mdret;
+        }
+    }
+    return mdret;
+}
+
 
 int main(int argc, char *argv[]){
 	// Initialize GLUT window manager
@@ -250,31 +265,33 @@ int main(int argc, char *argv[]){
     b2 = new SuggestiveContourDrawer(trimesh::vec(0,0,0), 2.0, true, 0.001);
     b3 = new BoundaryDrawer(trimesh::vec(0.05,0.05,0.05),2.5);
 
+    string prefix_path = "/media/christina/Elements/ANNFASS_SOLUTION";
 
-//    char* names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/MILITARYcastle_mesh2135Marios.ply"};
-//    char* out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/MILITARYcastle_mesh2135Marios";
-//    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RELIGIOUScathedral_mesh0754Marios.ply"};
-//    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RELIGIOUScathedral_mesh0754Marios";
-//    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RESIDENTIALhouse_mesh2302Marios.ply"};
-//    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RESIDENTIALhouse_mesh2302Marios";
-//    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RESIDENTIALvilla_mesh3265Marios.ply"};
-//    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RESIDENTIALvilla_mesh3265Marios";
+    string data_name = "buildnet";
+    char* names[] = {
+            "MILITARYcastle_mesh2135Marios.ply",
+//            "RELIGIOUScathedral_mesh0754Marios.ply",
+//            "RESIDENTIALhouse_mesh2302Marios.ply",
+//            "RESIDENTIALvilla_mesh3265Marios.ply"
+    };
 
-
-    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/28_Stavrou_Economou_Building_01Marios.ply"};
-//    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/28_Stavrou_Economou_Building_01Marios";
-    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/dokimes";
-//    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/29_Lefkaritis_Building_01Marios.ply"};
-//    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/29_Lefkaritis_Building_01Marios";
-//    char *names[] = {"", "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/30_Nicolaou_Building_01Marios.ply"};
-//    char *out_dir = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/30_Nicolaou_Building_01Marios";
+//    string data_name = "annfass_buildings";
+//    char* names[] = {
+//            "28_Stavrou_Economou_Building_01Marios.ply",
+//            "29_Lefkaritis_Building_01Marios.ply",
+//            "30_Nicolaou_Building_01Marios.ply"};
 
 
     // read models from arguments
-	for (int i = 1; i < argc; i++){
-		const char *name = names[i];
-		// creat model
-		Model* m = new Model(name);
+	for (int i = 0; i < sizeof(names); i++){
+		const string modelname = prefix_path + "/proj_style_data/rtsc_in/" + data_name + "/" + names[i];
+        const string outpath = prefix_path + "/proj_style_out/rtsc_out/" + data_name + "/" +
+                std::string(&names[i][0], &names[i][std::strlen(names[i])-4]);
+        mkpath(prefix_path + "/proj_style_out/rtsc_out/" + data_name, 7777);
+        mkpath(outpath, 7777);
+
+        // creat model
+		Model* m = new Model(modelname.c_str());
 		// add drawers to model
 		m->pushDrawer(b);
 		m->pushDrawer(b1);
@@ -283,14 +300,13 @@ int main(int argc, char *argv[]){
 		models.push_back(m);
 		// push back blank tranformation matrix
 		transformations.push_back(trimesh::xform());
-	}
 
-	// create fps counter
-	fps = new FPSCounter();
+        for (int rot_angle_y = 0; rot_angle_y <= 360; rot_angle_y+=30) {
+            resetview();
+            redraw(outpath.c_str(), rot_angle_y);
+        }
 
-    for (int rot_angle_y = 0; rot_angle_y <= 360; rot_angle_y+=30) {
-        resetview();
-        redraw(out_dir, rot_angle_y);
+//        models.pop_back();
     }
 
 }
