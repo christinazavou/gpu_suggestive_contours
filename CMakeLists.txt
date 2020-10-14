@@ -42,3 +42,5 @@ add_executable(${RENDER_EXAMPLE_EXE}
         ${SOURCES}
         "src/runners/renderexample.cpp")
 target_link_libraries(${RENDER_EXAMPLE_EXE} libGL.so libglut.so libGLEW.so libEGL.so)
+
+add_executable(PPM2BMPExe src/ppm2bmp/ppm2bmp.cpp src/ppm2bmp/ppm2bmp.h)
