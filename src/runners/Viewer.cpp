@@ -57,16 +57,16 @@ bool diffuse = false;
  * Clears the OpenGL Draw and Depth buffer, resets all relevant OpenGL states
  */
 void cls(){
-	glDisable(GL_DITHER);
-	glDisable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_NORMALIZE);
-	glDisable(GL_LIGHTING);
-	glDisable(GL_NORMALIZE);
-	glDisable(GL_COLOR_MATERIAL);
-	glClearColor(1, 1, 1, 0);;
-	glClearDepth(1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DITHER);
+    glDisable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_NORMALIZE);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_NORMALIZE);
+    glDisable(GL_COLOR_MATERIAL);
+    glClearColor(1, 1, 1, 0);;
+    glClearDepth(1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 /**
@@ -74,28 +74,28 @@ void cls(){
  * (from TriMesh2 library)
  */
 void update_boundingsphere(){
-	// largest box possible
-	trimesh::point boxmin(1e38, 1e38, 1e38);
-	trimesh::point boxmax(-1e38, -1e38, -1e38);
-	// find outer coords
-	for (unsigned int i = 0; i < models.size(); i++){
-		trimesh::point c = transformations[i] * models[i]->mesh_->bsphere.center;
-		float r = models[i]->mesh_->bsphere.r;
-		for (int j = 0; j < 3; j++) {
-			boxmin[j] = std::min(boxmin[j], c[j]-r);
-			boxmax[j] = std::max(boxmax[j], c[j]+r);
-		}
-	}
-	trimesh::point &gc = global_bsph.center;
-	float &gr = global_bsph.r;
-	gc = 0.5f * (boxmin + boxmax);
-	gr = 0.0f;
-	// find largest possible radius for sphere
-	for (unsigned int i = 0; i < models.size(); i++) {
-		trimesh::point c = transformations[i] * models[i]->mesh_->bsphere.center;
-		float r = models[i]->mesh_->bsphere.r;
-		gr = std::max(gr, dist(c, gc) + r);
-	}
+    // largest box possible
+    trimesh::point boxmin(1e38, 1e38, 1e38);
+    trimesh::point boxmax(-1e38, -1e38, -1e38);
+    // find outer coords
+    for (unsigned int i = 0; i < models.size(); i++){
+        trimesh::point c = transformations[i] * models[i]->mesh_->bsphere.center;
+        float r = models[i]->mesh_->bsphere.r;
+        for (int j = 0; j < 3; j++) {
+            boxmin[j] = std::min(boxmin[j], c[j]-r);
+            boxmax[j] = std::max(boxmax[j], c[j]+r);
+        }
+    }
+    trimesh::point &gc = global_bsph.center;
+    float &gr = global_bsph.r;
+    gc = 0.5f * (boxmin + boxmax);
+    gr = 0.0f;
+    // find largest possible radius for sphere
+    for (unsigned int i = 0; i < models.size(); i++) {
+        trimesh::point c = transformations[i] * models[i]->mesh_->bsphere.center;
+        float r = models[i]->mesh_->bsphere.r;
+        gr = std::max(gr, dist(c, gc) + r);
+    }
 }
 
 /**
@@ -103,38 +103,38 @@ void update_boundingsphere(){
  */
 void resetview()
 {
-	// kill the cam
-	camera.stopspin();
-	// undo all model transformations
-	for (unsigned int i = 0; i < models.size(); i++){
-		transformations[i] = trimesh::xform();
-	}
-	// recompute bounding sphere
-	update_boundingsphere();
-	// put ourselves in middle
-	global_transf = trimesh::xform::trans(0, 0, -5.0f * global_bsph.r)
-	        * trimesh::xform::trans(-global_bsph.center);
+    // kill the cam
+    camera.stopspin();
+    // undo all model transformations
+    for (unsigned int i = 0; i < models.size(); i++){
+        transformations[i] = trimesh::xform();
+    }
+    // recompute bounding sphere
+    update_boundingsphere();
+    // put ourselves in middle
+    global_transf = trimesh::xform::trans(0, 0, -5.0f * global_bsph.r)
+                    * trimesh::xform::trans(-global_bsph.center);
 }
 
 /**
  * Setup the OpenGL lighting
  */
 void setup_lighting(){
-	if(!diffuse){
-		trimesh::Color c(1.0f);
-		glColor3fv(c);
-		glDisable(GL_LIGHTING);
-	}
-	else{
-		GLfloat light0_diffuse[] = { 0.85, 0.85, 0.85, 0.85 };
-		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
-		glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
-		glEnable(GL_COLOR_MATERIAL);
-		glEnable(GL_NORMALIZE);
-	}
+    if(!diffuse){
+        trimesh::Color c(1.0f);
+        glColor3fv(c);
+        glDisable(GL_LIGHTING);
+    }
+    else{
+        GLfloat light0_diffuse[] = { 0.85, 0.85, 0.85, 0.85 };
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
+        glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT0);
+        glEnable(GL_COLOR_MATERIAL);
+        glEnable(GL_NORMALIZE);
+    }
 }
 
 
@@ -192,39 +192,36 @@ void redraw(const char* out_dir, int angle_y){
 	// setup camera and push global transformations
 	camera.setupGL(global_transf * global_bsph.center, global_bsph.r);
     glPushMatrix();
-	glMultMatrixd(global_transf);
+    glMultMatrixd(global_transf);
     glRotatef(30,1,0,0);
     glRotatef(angle_y,0,1,0);
     cls();
 
-	// enable depth checking and backface culling
-	glDepthFunc(GL_LESS);
-	glEnable(GL_DEPTH_TEST);
-	glCullFace(GL_BACK);
-	glEnable(GL_CULL_FACE);
+    // enable depth checking and backface culling
+    glDepthFunc(GL_LESS);
+    glEnable(GL_DEPTH_TEST);
+    glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
 
-	// compute new camera position
-	camera_pos = inv(global_transf) * trimesh::point(0,0,0);
+    // compute new camera position
+    camera_pos = inv(global_transf) * trimesh::point(0,0,0);
 
-	// setup lighting
-	setup_lighting();
+    // setup lighting
+    setup_lighting();
 
-	// draw every model
-	for (unsigned int i = 0; i < models.size(); i++){
-		// push model-specific transformations
-		glPushMatrix();
-		glMultMatrixd(transformations[i]);
-		// tell model to execute its drawer stack
-		models[i]->draw(camera_pos);
-		// pop again
-		glPopMatrix();
-	}
-	// pop global transformations
-	glPopMatrix();
-	glutSwapBuffers();
-	std::stringstream out;
-	string s = out.str();
-	glutSetWindowTitle(s.c_str());
+    // draw every model
+    for (unsigned int i = 0; i < models.size(); i++){
+        // push model-specific transformations
+        glPushMatrix();
+        glMultMatrixd(transformations[i]);
+        // tell model to execute its drawer stack
+        models[i]->draw(camera_pos);
+        // pop again
+        glPopMatrix();
+    }
+    // pop global transformations
+    glPopMatrix();
+    glutSwapBuffers();
     dump_image(out_dir, angle_y/30);
 
 }
@@ -251,63 +248,64 @@ int mkpath(std::string s,mode_t mode){
 
 
 int main(int argc, char *argv[]){
-	// Initialize GLUT window manager
-	glutInitWindowSize(512, 512);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-	glutInit(&argc, argv);
-	glutCreateWindow("Crytek Object Space Contours Demo");
-	glewInit();
-	glutHideWindow();
+    // Initialize GLUT window manager
+    glutInitWindowSize(512, 512);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+    glutInit(&argc, argv);
+    glutCreateWindow("Crytek Object Space Contours Demo");
+    glewInit();
+    glutHideWindow();
 
-	// construct the Drawers we'll use in this demo
-	b = new BaseDrawer();
-	b1 = new EdgeContourDrawer(trimesh::vec(0,0,0),3.0);
+    // construct the Drawers we'll use in this demo
+    b = new BaseDrawer();
+    b1 = new EdgeContourDrawer(trimesh::vec(0,0,0),3.0);
     b2 = new SuggestiveContourDrawer(trimesh::vec(0,0,0), 2.0, true, 0.001);
     b3 = new BoundaryDrawer(trimesh::vec(0.05,0.05,0.05),2.5);
 
-    string prefix_path = "/media/christina/Elements/ANNFASS_SOLUTION";
-
-    string data_name = "buildnet";
-    char* names[] = {
-            "MILITARYcastle_mesh2135Marios.ply",
-//            "RELIGIOUScathedral_mesh0754Marios.ply",
-//            "RESIDENTIALhouse_mesh2302Marios.ply",
-//            "RESIDENTIALvilla_mesh3265Marios.ply"
+    char *names[] = {
+//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/28_Stavrou_Economou_Building_01Marios.ply",
+//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/29_Lefkaritis_Building_01Marios.ply",
+//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/30_Nicolaou_Building_01Marios.ply",
+//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/MILITARYcastle_mesh2135Marios.ply",
+//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RELIGIOUScathedral_mesh0754Marios.ply",
+            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RESIDENTIALhouse_mesh2302Marios.ply",
+            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RESIDENTIALvilla_mesh3265Marios.ply",
     };
-
-//    string data_name = "annfass_buildings";
-//    char* names[] = {
-//            "28_Stavrou_Economou_Building_01Marios.ply",
-//            "29_Lefkaritis_Building_01Marios.ply",
-//            "30_Nicolaou_Building_01Marios.ply"};
-
+    char *out_dir[] = {
+//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/28_Stavrou_Economou_Building_01Marios",
+//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/29_Lefkaritis_Building_01Marios",
+//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/30_Nicolaou_Building_01Marios",
+//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/MILITARYcastle_mesh2135Marios",
+//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RELIGIOUScathedral_mesh0754Marios",
+            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RESIDENTIALhouse_mesh2302Marios",
+            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RESIDENTIALvilla_mesh3265Marios",
+    };
+    int count = sizeof(names)/sizeof(names[0]);
 
     // read models from arguments
-	for (int i = 0; i < sizeof(names); i++){
-		const string modelname = prefix_path + "/proj_style_data/rtsc_in/" + data_name + "/" + names[i];
-        const string outpath = prefix_path + "/proj_style_out/rtsc_out/" + data_name + "/" +
-                std::string(&names[i][0], &names[i][std::strlen(names[i])-4]);
-        mkpath(prefix_path + "/proj_style_out/rtsc_out/" + data_name, 7777);
-        mkpath(outpath, 7777);
-
+    for (int i = 0; i < count; i++){
+        const char *name = names[i];
         // creat model
-		Model* m = new Model(modelname.c_str());
-		// add drawers to model
-		m->pushDrawer(b);
-		m->pushDrawer(b1);
-		m->pushDrawer(b2);
-		m->pushDrawer(b3);
-		models.push_back(m);
-		// push back blank tranformation matrix
-		transformations.push_back(trimesh::xform());
+        Model* m = new Model(name);
+        // add drawers to model
+        m->pushDrawer(b);
+        m->pushDrawer(b1);
+        m->pushDrawer(b2);
+        m->pushDrawer(b3);
+        models.push_back(m);
+        // push back blank tranformation matrix
+        transformations.push_back(trimesh::xform());
+
+        mkpath(out_dir[i], 7777);
 
         for (int rot_angle_y = 0; rot_angle_y <= 360; rot_angle_y+=30) {
             resetview();
-            redraw(outpath.c_str(), rot_angle_y);
+            redraw(out_dir[i], rot_angle_y);
         }
 
-//        models.pop_back();
+        models.pop_back();
     }
+
 
 }
 
