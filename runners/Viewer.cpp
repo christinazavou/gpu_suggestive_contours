@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <math.h>
 #include <sys/stat.h>
+#include <dirent.h>
 
 
 // SELFMADE
@@ -262,50 +263,71 @@ int main(int argc, char *argv[]){
     b2 = new SuggestiveContourDrawer(trimesh::vec(0,0,0), 2.0, true, 0.001);
     b3 = new BoundaryDrawer(trimesh::vec(0.05,0.05,0.05),2.5);
 
-    char *names[] = {
-//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/28_Stavrou_Economou_Building_01Marios.ply",
-//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/29_Lefkaritis_Building_01Marios.ply",
-//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/annfass_buildings/30_Nicolaou_Building_01Marios.ply",
-//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/MILITARYcastle_mesh2135Marios.ply",
-//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RELIGIOUScathedral_mesh0754Marios.ply",
-            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RESIDENTIALhouse_mesh2302Marios.ply",
-            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/RESIDENTIALvilla_mesh3265Marios.ply",
-    };
-    char *out_dir[] = {
-//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/28_Stavrou_Economou_Building_01Marios",
-//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/29_Lefkaritis_Building_01Marios",
-//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/annfass_buildings/30_Nicolaou_Building_01Marios",
-//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/MILITARYcastle_mesh2135Marios",
-//            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RELIGIOUScathedral_mesh0754Marios",
-            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RESIDENTIALhouse_mesh2302Marios",
-            "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/RESIDENTIALvilla_mesh3265Marios",
-    };
-    int count = sizeof(names)/sizeof(names[0]);
 
-    // read models from arguments
-    for (int i = 0; i < count; i++){
-        const char *name = names[i];
-        // creat model
-        Model* m = new Model(name);
-        // add drawers to model
-        m->pushDrawer(b);
-        m->pushDrawer(b1);
-        m->pushDrawer(b2);
-        m->pushDrawer(b3);
-        models.push_back(m);
-        // push back blank tranformation matrix
-        transformations.push_back(trimesh::xform());
+    struct dirent *entry;
+    DIR *dp;
+    const char* in_folder = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_data/rtsc_in/buildnet/";
+    const char* out_folder = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/";
+    char* in_filename;
+    char* out_full_folder;
 
-        mkpath(out_dir[i], 7777);
+    dp = opendir(in_folder);
+    if (dp == NULL) {
+        perror("opendir: Path does not exist or could not be read.");
+        return -1;
+    }
+    int objects = -1;
+    while ((entry = readdir(dp))){
+        if ( !strcmp( entry->d_name, "."  )) continue;
+        if ( !strcmp( entry->d_name, ".." )) continue;
+        if ( entry->d_name[0] == '.' ) continue;
 
-        for (int rot_angle_y = 0; rot_angle_y <= 360; rot_angle_y+=30) {
-            resetview();
-            redraw(out_dir[i], rot_angle_y);
+        objects += 1;
+        if (objects >= 15)
+            break;
+
+        std::cout<<entry->d_name<<std::endl;
+
+        in_filename = (char*) malloc(200);
+        strcpy(in_filename, in_folder);
+        strcat(in_filename, entry->d_name);
+        std::cout<<"in_filename: " << in_filename << std::endl;
+
+        out_full_folder = (char*) malloc(200);
+        strcpy(out_full_folder, out_folder);
+        string name = std::string (entry->d_name).substr(0, strlen(entry->d_name)-4);
+        strcat(out_full_folder, name.c_str());
+        std::cout<<"out_full_folder: " << out_full_folder << std::endl;
+
+        if (access(out_full_folder, F_OK) == -1){
+            mkdir(out_full_folder,0777);
+        }
+        else{
+            continue;
         }
 
-        models.pop_back();
-    }
+        for (int i = 0; i < 1; i++){
+            // creat model
+            Model* m = new Model(in_filename);
+            // add drawers to model
+            m->pushDrawer(b);
+            m->pushDrawer(b1);
+            m->pushDrawer(b2);
+            m->pushDrawer(b3);
+            models.push_back(m);
+            // push back blank tranformation matrix
+            transformations.push_back(trimesh::xform());
 
+            for (int rot_angle_y = 0; rot_angle_y <= 360; rot_angle_y+=30) {
+                resetview();
+                redraw(out_full_folder, rot_angle_y);
+            }
+
+            models.pop_back();
+        }
+
+    }
+    closedir(dp);
 
 }
 

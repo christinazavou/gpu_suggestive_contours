@@ -40,4 +40,7 @@ add_executable(${RENDER_EXAMPLE_EXE}
         ${HEADERS}
         ${SOURCES}
         "runners/renderexample.cpp")
+
+add_executable(TestMe "runners/IterateFolderFiles.cpp")
+
 target_link_libraries(${RENDER_EXAMPLE_EXE} libGL.so libglut.so libGLEW.so libEGL.so)
