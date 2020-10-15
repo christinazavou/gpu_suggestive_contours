@@ -25,12 +25,12 @@
 
 
 // SELFMADE
-#include "../Model.h"
-#include "../BaseDrawer.h"
-#include "../EdgeContourDrawer.h"
-#include "../FaceContourDrawer.h"
-#include "../SuggestiveContourDrawer.h"
-#include "../BoundaryDrawer.h"
+#include "../src/Model.h"
+#include "../src/BaseDrawer.h"
+#include "../src/EdgeContourDrawer.h"
+#include "../src/FaceContourDrawer.h"
+#include "../src/SuggestiveContourDrawer.h"
+#include "../src/BoundaryDrawer.h"
 
 using std::string;
 

@@ -17,8 +17,7 @@ include_directories(
 file(GLOB HEADERS
         "include/trimesh2/GL/*.h"
         "include/trimesh2/*.h"
-        "src/*.h"
-        "mysrc/*.h")
+        "src/*.h")
 message("HEADERS: ${HEADERS}")
 
 file(GLOB SOURCES
@@ -34,13 +33,11 @@ link_directories(${OPENGL_LIBS_DIR})
 add_executable(${VIEWER_EXE}
         ${HEADERS}
         ${SOURCES}
-        "src/runners/Viewer.cpp")
+        "runners/Viewer.cpp")
 target_link_libraries(${VIEWER_EXE} libGL.so libglut.so libGLEW.so)
 
 add_executable(${RENDER_EXAMPLE_EXE}
         ${HEADERS}
         ${SOURCES}
-        "src/runners/renderexample.cpp")
+        "runners/renderexample.cpp")
 target_link_libraries(${RENDER_EXAMPLE_EXE} libGL.so libglut.so libGLEW.so libEGL.so)
-
-add_executable(PPM2BMPExe src/ppm2bmp/ppm2bmp.cpp src/ppm2bmp/ppm2bmp.h)
