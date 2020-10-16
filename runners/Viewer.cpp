@@ -270,6 +270,9 @@ int main(int argc, char *argv[]){
     const char* out_folder = "/media/christina/Elements/ANNFASS_SOLUTION/proj_style_out/rtsc_out/buildnet/";
     char* in_filename;
     char* out_full_folder;
+    if (access(out_folder, F_OK) == -1){
+        mkdir(out_folder,0777);
+    }
 
     dp = opendir(in_folder);
     if (dp == NULL) {
@@ -283,7 +286,7 @@ int main(int argc, char *argv[]){
         if ( entry->d_name[0] == '.' ) continue;
 
         objects += 1;
-        if (objects >= 15)
+        if (objects >= 20)
             break;
 
         std::cout<<entry->d_name<<std::endl;
@@ -318,7 +321,7 @@ int main(int argc, char *argv[]){
             // push back blank tranformation matrix
             transformations.push_back(trimesh::xform());
 
-            for (int rot_angle_y = 0; rot_angle_y <= 360; rot_angle_y+=30) {
+            for (int rot_angle_y = 0; rot_angle_y < 360; rot_angle_y+=30) {
                 resetview();
                 redraw(out_full_folder, rot_angle_y);
             }
