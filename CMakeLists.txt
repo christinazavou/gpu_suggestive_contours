@@ -8,6 +8,8 @@ SET(OPENGL_LIBS "libGL.so libglut.so libGLEW.so libEGL.so")
 
 set(VIEWER_EXE ViewerApp)
 set(RENDER_EXAMPLE_EXE RenderExampleApp)
+set(FILES_ITER_EXE FilesIterApp)
+set(RTSC_EXE RTSCApp)
 
 
 include_directories(
@@ -41,6 +43,9 @@ add_executable(${RENDER_EXAMPLE_EXE}
         ${SOURCES}
         "runners/renderexample.cpp")
 
-add_executable(TestMe "runners/IterateFolderFiles.cpp")
-
 target_link_libraries(${RENDER_EXAMPLE_EXE} libGL.so libglut.so libGLEW.so libEGL.so)
+
+add_executable(${FILES_ITER_EXE} "runners/IterateFolderFiles.cpp")
+
+#add_executable(${RTSC_EXE} "runners/rtsc.cc")
+#target_link_libraries(${RTSC_EXE} libGL.so libglut.so libGLEW.so libEGL.so)
